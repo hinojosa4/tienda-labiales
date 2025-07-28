@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
+const badWords = ['mierda', 'puta', 'carajo', 'idiota', 'imbecil', 'estupido', 'estúpido', 'perra']
+
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -18,6 +20,8 @@ export default function LoginPage() {
     phone: '',
     address: '',
   })
+
+  const [errors, setErrors] = useState<any>({})
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -26,10 +30,49 @@ export default function LoginPage() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
+  const validate = () => {
+    const newErrors: any = {}
+    const nameRegex = /^[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,30}$/
+    const phoneRegex = /^[67]\d{7}$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+
+    const containsBadWords = (text: string) =>
+      badWords.some((word) => text.toLowerCase().includes(word))
+
+    if (!nameRegex.test(form.full_name) || containsBadWords(form.full_name)) {
+      newErrors.full_name = 'Nombre inválido (sin caracteres especiales, máximo 30 letras y sin groserías)'
+    }
+
+    if (!phoneRegex.test(form.phone)) {
+      newErrors.phone = 'Número inválido (debe empezar en 6 o 7 y tener 8 dígitos)'
+    }
+
+    if (!emailRegex.test(form.email) || form.email.length > 20) {
+      newErrors.email = 'Correo inválido (máximo 20 caracteres)'
+    }
+
+    if (form.address.length > 25 || containsBadWords(form.address)) {
+      newErrors.address = 'Dirección inválida (máximo 25 caracteres y sin groserías)'
+    }
+
+    if (!passwordRegex.test(form.password)) {
+      newErrors.password = 'Contraseña débil (mínimo 8 caracteres con mayúscula, minúscula y número)'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError('')
+    setLoading(true)
+
+    if (!isLogin && !validate()) {
+      setLoading(false)
+      return
+    }
 
     if (isLogin) {
       const { data: signInData, error } = await supabase.auth.signInWithPassword({
@@ -51,12 +94,7 @@ export default function LoginPage() {
           if (userError || !userData) {
             setError('No se pudo verificar el rol del usuario.')
           } else {
-            const rol = userData.role
-            if (rol === 'vendedor') {
-              router.push('/admin')
-            } else {
-              router.push(nextUrl)
-            }
+            router.push(userData.role === 'vendedor' ? '/admin' : nextUrl)
           }
         } else {
           setError('Usuario no encontrado.')
@@ -125,9 +163,10 @@ export default function LoginPage() {
                   className="w-full p-3 border border-pink-300 rounded-lg text-black"
                   required
                 />
+                {errors.full_name && <p className="text-red-500 text-sm mt-1">{errors.full_name}</p>}
               </div>
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">Teléfono</label>
+                <label className="block mb-1 text-sm font-medium text-gray-700">Celular</label>
                 <input
                   name="phone"
                   value={form.phone}
@@ -135,6 +174,7 @@ export default function LoginPage() {
                   className="w-full p-3 border border-pink-300 rounded-lg text-black"
                   required
                 />
+                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
               </div>
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-700">Dirección</label>
@@ -145,6 +185,7 @@ export default function LoginPage() {
                   className="w-full p-3 border border-pink-300 rounded-lg text-black"
                   required
                 />
+                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
               </div>
             </>
           )}
@@ -158,6 +199,7 @@ export default function LoginPage() {
               className="w-full p-3 border border-pink-300 rounded-lg text-black"
               required
             />
+            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">Contraseña</label>
@@ -179,6 +221,7 @@ export default function LoginPage() {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
+            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           <button
