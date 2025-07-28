@@ -20,18 +20,22 @@ export default function CarritoPage() {
     checkSession()
   }, [])
 
-  /*const handleComprar = async () => {
-    const { data: sessionData } = await supabase.auth.getSession()
-    const session = sessionData?.session
+  const handleComprar = async () => {
+    setProcesando(true)
 
-    if (!session) {
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession()
+
+    if (!session || sessionError) {
+      setProcesando(false)
       router.push('/login?next=/carrito')
       return
     }
 
     const userAuth = session.user
 
-    // Obtener datos completos del usuario
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('*')
@@ -41,18 +45,18 @@ export default function CarritoPage() {
     if (!userData || userError) {
       alert('No se pudo obtener los datos del cliente')
       console.error(userError)
+      setProcesando(false)
       return
     }
 
     const total = getTotal()
 
-    // 1. Insertar pedido
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
         user_id: userData.id,
         total_price: total,
-        cancel_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // +2 días
+        cancel_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
       })
       .select()
       .single()
@@ -60,11 +64,11 @@ export default function CarritoPage() {
     if (orderError || !order) {
       alert('Error al crear el pedido')
       console.error(orderError)
+      setProcesando(false)
       return
     }
 
-    // 2. Insertar detalle del pedido
-    const itemsData = items.map(item => ({
+    const itemsData = items.map((item) => ({
       order_id: order.id,
       product_id: item.id,
       quantity: item.quantity,
@@ -74,127 +78,32 @@ export default function CarritoPage() {
     const { error: itemsError } = await supabase.from('order_items').insert(itemsData)
 
     if (itemsError) {
-      alert('Error al insertar productos del pedido')
+      alert('Error al guardar productos del pedido')
       console.error(itemsError)
+      setProcesando(false)
       return
     }
 
-    // 3. Generar mensaje de WhatsApp
     const mensaje = `
-🛍️ *Nuevo Pedido de ${userData.full_name}*
+      🛍️ *Nuevo Pedido de ${userData.full_name}*
 
-📅 Fecha: ${new Date().toLocaleDateString()}
-📞 Teléfono: ${userData.phone}
-📍 Dirección: ${userData.address}
+      📅 Fecha: ${new Date().toLocaleDateString()}
+      📞 Teléfono: ${userData.phone}
+      📍 Dirección: ${userData.address}
 
-🧾 *Detalle del pedido:*
-${items.map(i => `- ${i.name} x${i.quantity} = Bs ${(i.price * i.quantity).toFixed(2)}`).join('\n')}
+      🧾 *Detalle del pedido:*
+      ${items.map(i => `- ${i.name} x${i.quantity} = Bs ${(i.price * i.quantity).toFixed(2)}`).join('\n')}
 
-💰 *Total a pagar:* Bs ${total.toFixed(2)}
-`.trim()
-
-    const numeroVendedor = '59179730325' // 🔁 Cambia a tu número real
-    const url = `https://wa.me/${numeroVendedor}?text=${encodeURIComponent(mensaje)}`
-
-    setProcesando(true)
-    clearCart()
-
-    setTimeout(() => {
-      window.location.href = url
-    }, 1000)
-  }*/
-  const handleComprar = async () => {
-  setProcesando(true)
-
-  // 1. Verificar sesión
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession()
-
-  if (!session || sessionError) {
-    setProcesando(false)
-    router.push('/login?next=/carrito')
-    return
-  }
-
-  const userAuth = session.user
-
-  // 2. Obtener usuario completo desde tabla "users"
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('*')
-    .eq('email', userAuth.email)
-    .single()
-
-  if (!userData || userError) {
-    alert('No se pudo obtener los datos del cliente')
-    console.error(userError)
-    setProcesando(false)
-    return
-  }
-
-  const total = getTotal()
-
-  // 3. Crear pedido
-  const { data: order, error: orderError } = await supabase
-    .from('orders')
-    .insert({
-      user_id: userData.id,
-      total_price: total,
-      cancel_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-    })
-    .select()
-    .single()
-
-  if (orderError || !order) {
-    alert('Error al crear el pedido')
-    console.error(orderError)
-    setProcesando(false)
-    return
-  }
-
-  // 4. Insertar detalle de productos
-  const itemsData = items.map((item) => ({
-    order_id: order.id,
-    product_id: item.id,
-    quantity: item.quantity,
-    unit_price: item.price,
-  }))
-
-  const { error: itemsError } = await supabase.from('order_items').insert(itemsData)
-
-  if (itemsError) {
-    alert('Error al guardar productos del pedido')
-    console.error(itemsError)
-    setProcesando(false)
-    return
-  }
-
-  // 5. Generar mensaje de WhatsApp
-  const mensaje = `
-    🛍️ *Nuevo Pedido de ${userData.full_name}*
-
-    📅 Fecha: ${new Date().toLocaleDateString()}
-    📞 Teléfono: ${userData.phone}
-    📍 Dirección: ${userData.address}
-
-    🧾 *Detalle del pedido:*
-    ${items.map(i => `- ${i.name} x${i.quantity} = Bs ${(i.price * i.quantity).toFixed(2)}`).join('\n')}
-
-    💰 *Total a pagar:* Bs ${total.toFixed(2)}
+      💰 *Total a pagar:* Bs ${total.toFixed(2)}
     `.trim()
 
     const numeroVendedor = '59179730325'
     const url = `https://wa.me/${numeroVendedor}?text=${encodeURIComponent(mensaje)}`
 
-    // 6. Limpiar carrito, abrir WhatsApp y redirigir
     clearCart()
-
-    window.open(url, '_blank')      // Abre WhatsApp en otra pestaña
-    router.push('/productos')       // Redirige al usuario en tu app
-}
-
+    window.open(url, '_blank')
+    router.push('/productos')
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-200 to-pink-300 py-10 px-4">
@@ -206,25 +115,54 @@ ${items.map(i => `- ${i.name} x${i.quantity} = Bs ${(i.price * i.quantity).toFix
         ) : (
           <div className="space-y-6">
             {items.map(item => (
-              <div key={item.id} className="flex gap-4 items-center bg-white p-4 rounded-xl shadow">
+              <div
+                key={item.id}
+                className="flex flex-wrap sm:flex-nowrap gap-4 items-center bg-white p-4 rounded-xl shadow"
+              >
                 {item.image_url && (
-                  <img src={item.image_url} alt={item.name} className="w-24 h-24 object-cover rounded-lg" />
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
+                    <img
+                      src={item.image_url}
+                      alt={item.name}
+                      className="w-full h-full object-contain rounded-lg"
+                    />
+                  </div>
                 )}
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <h2 className="text-xl font-semibold text-pink-600">{item.name}</h2>
                   <p className="text-gray-600">Bs {item.price}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <button onClick={() => decrease(item.id)} className="px-3 py-1 bg-pink-100 rounded-full text-pink-600 font-bold text-lg">−</button>
-                    <span className="text-lg font-semibold">{item.quantity}</span>
-                    <button onClick={() => increase(item.id)} className="px-3 py-1 bg-pink-100 rounded-full text-pink-600 font-bold text-lg">+</button>
-                    <button onClick={() => removeFromCart(item.id)} className="ml-4 text-sm text-red-500 hover:underline">Eliminar</button>
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <button
+                      onClick={() => decrease(item.id)}
+                      className="px-3 py-1 bg-pink-100 rounded-full text-pink-600 font-bold text-lg"
+                    >
+                      −
+                    </button>
+                    <span className="text-lg font-semibold text-black">{item.quantity}</span>
+                    <button
+                      onClick={() => increase(item.id)}
+                      className="px-3 py-1 bg-pink-100 rounded-full text-pink-600 font-bold text-lg"
+                    >
+                      +
+                    </button>
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="ml-4 text-sm text-red-500 hover:underline"
+                    >
+                      Eliminar
+                    </button>
                   </div>
                 </div>
               </div>
             ))}
             <div className="text-right mt-6">
-              <p className="text-xl font-semibold text-gray-700 mb-2">Total: <span className="text-pink-600">Bs {getTotal().toFixed(2)}</span></p>
-              <button onClick={handleComprar} className="bg-pink-500 text-white px-6 py-3 rounded-full hover:bg-pink-600 transition">
+              <p className="text-xl font-semibold text-gray-700 mb-2">
+                Total: <span className="text-pink-600">Bs {getTotal().toFixed(2)}</span>
+              </p>
+              <button
+                onClick={handleComprar}
+                className="bg-pink-500 text-white px-6 py-3 rounded-full hover:bg-pink-600 transition"
+              >
                 Finalizar pedido
               </button>
             </div>

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
-import { useMemo } from 'react'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -20,6 +20,7 @@ export default function LoginPage() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -117,28 +118,73 @@ export default function LoginPage() {
             <>
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-700">Nombre completo</label>
-                <input name="full_name" value={form.full_name} onChange={handleChange} className="w-full p-3 border border-pink-300 rounded-lg" required />
+                <input
+                  name="full_name"
+                  value={form.full_name}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-pink-300 rounded-lg text-black"
+                  required
+                />
               </div>
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-700">Teléfono</label>
-                <input name="phone" value={form.phone} onChange={handleChange} className="w-full p-3 border border-pink-300 rounded-lg" required />
+                <input
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-pink-300 rounded-lg text-black"
+                  required
+                />
               </div>
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-700">Dirección</label>
-                <input name="address" value={form.address} onChange={handleChange} className="w-full p-3 border border-pink-300 rounded-lg" required />
+                <input
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-pink-300 rounded-lg text-black"
+                  required
+                />
               </div>
             </>
           )}
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">Correo electrónico</label>
-            <input name="email" type="email" value={form.email} onChange={handleChange} className="w-full p-3 border border-pink-300 rounded-lg" required />
+            <input
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              className="w-full p-3 border border-pink-300 rounded-lg text-black"
+              required
+            />
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">Contraseña</label>
-            <input name="password" type="password" value={form.password} onChange={handleChange} className="w-full p-3 border border-pink-300 rounded-lg" required />
+            <div className="relative">
+              <input
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                value={form.password}
+                onChange={handleChange}
+                className="w-full p-3 border border-pink-300 rounded-lg text-black pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 flex items-center text-pink-600"
+                tabIndex={-1}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-          <button disabled={loading} className="w-full py-3 px-4 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition disabled:opacity-50">
+          <button
+            disabled={loading}
+            className="w-full py-3 px-4 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition disabled:opacity-50"
+          >
             {loading ? 'Cargando...' : isLogin ? 'Iniciar Sesión' : 'Registrarse'}
           </button>
         </form>

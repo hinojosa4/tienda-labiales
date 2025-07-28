@@ -57,20 +57,39 @@ function ProductoCard({ producto }: { producto: any }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden flex flex-col">
       {producto.image_url && (
-        <img src={producto.image_url} alt={producto.name} className="h-48 w-full object-cover" />
+        <div className="w-full aspect-[4/3] bg-white">
+          <img
+            src={producto.image_url}
+            alt={producto.name}
+            className="w-full h-full object-contain"
+          />
+        </div>
       )}
-      <div className="p-4 flex flex-col gap-2">
+      <div className="p-4 flex flex-col gap-2 flex-1">
         <h2 className="text-xl font-semibold text-pink-600">{producto.name}</h2>
         <p className="text-gray-600">{producto.description}</p>
         <p className="text-pink-500 font-bold">Bs {producto.price}</p>
         <div className="flex items-center gap-2 justify-center mt-2">
-          <button onClick={disminuir} className="px-3 py-1 bg-pink-100 rounded-full text-pink-600 font-bold text-lg">−</button>
-          <span className="text-lg font-semibold">{cantidad}</span>
-          <button onClick={aumentar} className="px-3 py-1 bg-pink-100 rounded-full text-pink-600 font-bold text-lg">+</button>
+          <button
+            onClick={disminuir}
+            className="px-3 py-1 bg-pink-100 rounded-full text-pink-600 font-bold text-lg"
+          >
+            −
+          </button>
+          <span className="text-lg font-semibold text-black">{cantidad}</span>
+          <button
+            onClick={aumentar}
+            className="px-3 py-1 bg-pink-100 rounded-full text-pink-600 font-bold text-lg"
+          >
+            +
+          </button>
         </div>
-        <button onClick={handleAgregar} className="mt-3 bg-pink-500 text-white px-4 py-2 rounded-full hover:bg-pink-600 transition">
+        <button
+          onClick={handleAgregar}
+          className="mt-3 bg-pink-500 text-white px-4 py-2 rounded-full hover:bg-pink-600 transition"
+        >
           Agregar al carrito
         </button>
       </div>
