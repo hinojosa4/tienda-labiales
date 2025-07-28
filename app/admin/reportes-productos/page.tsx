@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import * as XLSX from 'xlsx'
 import { format } from 'date-fns'
-import { saveAs } from 'file-saver'
+//import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -38,7 +38,7 @@ export default function ReporteProductosPage() {
   }, [])
 
   // Exportar Excel
-  const exportarExcel = async () => {
+  /*const exportarExcel = async () => {
     const { saveAs } = await import('file-saver')
 
     const worksheetData = productos.map(p => ({
@@ -55,7 +55,28 @@ export default function ReporteProductosPage() {
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
     saveAs(blob, 'productos.xlsx')
-  }
+  }*/
+  const exportarExcel = async () => {
+    const FileSaver = await import('file-saver') // ✅ carga dinámica compatible
+    const saveAs = FileSaver.default // ✅ usa la exportación por defecto
+
+    const worksheetData = productos.map(p => ({
+      ID: p.id,
+      Nombre: p.name,
+      Precio: p.price.toFixed(2),
+      Stock: p.stock,
+  }))
+
+  const worksheet = XLSX.utils.json_to_sheet(worksheetData)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Productos')
+
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+  const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
+
+  saveAs(blob, 'productos.xlsx') // ✅ ahora sí funciona
+}
+
 
   // Exportar PDF
   const exportarPDF = () => {

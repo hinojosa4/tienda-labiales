@@ -29,11 +29,13 @@ export default function PedidosAdminPage() {
   const [limit, setLimit] = useState(10)
 
   const [modalAbierto, setModalAbierto] = useState(false)
-  const [detallePedido, setDetallePedido] = useState<PedidoDetalle[]>([])
+  //const [detallePedido, setDetallePedido] = useState<PedidoDetalle[]>([])
   const [pedidoActual, setPedidoActual] = useState<Pedido | null>(null)
 
   const [filtroNombre, setFiltroNombre] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('todos')
+  const [detallePedido, setDetallePedido] = useState<any[]>([])
+
 
   const fetchPedidos = async () => {
     setLoading(true)

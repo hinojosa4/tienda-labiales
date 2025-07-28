@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { format, startOfWeek, endOfWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
 import * as XLSX from 'xlsx'
-import { saveAs } from 'file-saver'
+//import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
