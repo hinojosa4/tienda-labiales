@@ -3,15 +3,11 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useCart } from '@/lib/store/useCart'
-
-// Si tienes un Header puedes descomentar
-// import Header from '@/components/Header'
+import Header from '@/components/Header'
 
 export default function ProductosPage() {
   const [productos, setProductos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const { items } = useCart()
-  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,28 +21,19 @@ export default function ProductosPage() {
   if (loading) return <p className="text-center mt-10">Cargando productos...</p>
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-200 to-pink-300 py-10 px-4">
-      {/* <Header /> */}
-      <div className="flex justify-end mb-4">
-        <a href="/carrito" className="relative inline-flex items-center text-pink-600 hover:text-pink-800">
-          <span className="text-2xl">🛒</span>
-          {totalItems > 0 && (
-            <span className="ml-1 text-sm font-bold bg-pink-500 text-white rounded-full px-2">
-              {totalItems}
-            </span>
-          )}
-        </a>
-      </div>
-
-      <div className="max-w-6xl mx-auto bg-white/90 p-6 rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold text-pink-600 mb-8 text-center">Nuestros Productos</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {productos.map((producto) => (
-            <ProductoCard key={producto.id} producto={producto} />
-          ))}
+    <>
+      <Header />
+      <main className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-200 to-pink-300 py-10 px-4">
+        <div className="max-w-6xl mx-auto bg-white/90 p-6 rounded-xl shadow-lg">
+          <h1 className="text-3xl font-bold text-pink-600 mb-8 text-center">Nuestros Productos</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {productos.map((producto) => (
+              <ProductoCard key={producto.id} producto={producto} />
+            ))}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   )
 }
 

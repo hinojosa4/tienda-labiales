@@ -8,11 +8,7 @@ import { useMemo } from 'react'
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  //const nextUrl = searchParams.get('next') || '/productos'
-  const nextUrl = useMemo(() => {
-  const value = searchParams.get('next')
-  return value || '/productos'
-  }, [searchParams])
+  const nextUrl = searchParams?.get('next') ?? '/productos'
 
   const [isLogin, setIsLogin] = useState(true)
   const [form, setForm] = useState({
@@ -35,8 +31,7 @@ export default function LoginPage() {
     setError('')
 
     if (isLogin) {
-      // Login existente
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
         email: form.email,
         password: form.password,
       })
@@ -44,10 +39,29 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
-        router.push(nextUrl)
+        const userId = signInData.user?.id
+        if (userId) {
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', userId)
+            .single()
+
+          if (userError || !userData) {
+            setError('No se pudo verificar el rol del usuario.')
+          } else {
+            const rol = userData.role
+            if (rol === 'vendedor') {
+              router.push('/admin')
+            } else {
+              router.push(nextUrl)
+            }
+          }
+        } else {
+          setError('Usuario no encontrado.')
+        }
       }
     } else {
-      // Registro nuevo
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
@@ -62,7 +76,6 @@ export default function LoginPage() {
       const userId = signUpData?.user?.id
 
       if (userId) {
-        // Evitar duplicados en tabla "users"
         const { data: existingUser } = await supabase
           .from('users')
           .select('id')
@@ -103,7 +116,7 @@ export default function LoginPage() {
           {!isLogin && (
             <>
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">Nombre completo marisol</label>
+                <label className="block mb-1 text-sm font-medium text-gray-700">Nombre completo</label>
                 <input name="full_name" value={form.full_name} onChange={handleChange} className="w-full p-3 border border-pink-300 rounded-lg" required />
               </div>
               <div>

@@ -188,11 +188,11 @@ ${items.map(i => `- ${i.name} x${i.quantity} = Bs ${(i.price * i.quantity).toFix
     const numeroVendedor = '59179730325'
     const url = `https://wa.me/${numeroVendedor}?text=${encodeURIComponent(mensaje)}`
 
-    // 6. Limpiar carrito y redirigir
+    // 6. Limpiar carrito, abrir WhatsApp y redirigir
     clearCart()
-    setTimeout(() => {
-    window.location.href = url
-    }, 1000)
+
+    window.open(url, '_blank')      // Abre WhatsApp en otra pestaña
+    router.push('/productos')       // Redirige al usuario en tu app
 }
 
 
