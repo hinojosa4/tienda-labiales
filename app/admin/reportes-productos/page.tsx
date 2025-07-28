@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import * as XLSX from 'xlsx'
+import * as XLSX from 'xlsx' // ✅ Puedes eliminar también esta línea si ya no usarás XLSX
 import { format } from 'date-fns'
-//import { saveAs } from 'file-saver'
+// import { saveAs } from 'file-saver' ❌ Eliminar esta línea si está presente
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -37,9 +37,11 @@ export default function ReporteProductosPage() {
     fetchProductos()
   }, [])
 
-  // Exportar Excel
-  /*const exportarExcel = async () => {
-    const { saveAs } = await import('file-saver')
+  // ❌ Puedes borrar toda esta función si ya no exportarás a Excel
+  /*
+  const exportarExcel = async () => {
+    const FileSaver = await import('file-saver')
+    const saveAs = FileSaver.default
 
     const worksheetData = productos.map(p => ({
       ID: p.id,
@@ -54,31 +56,12 @@ export default function ReporteProductosPage() {
 
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
+
     saveAs(blob, 'productos.xlsx')
-  }*/
-  const exportarExcel = async () => {
-    const FileSaver = await import('file-saver') // ✅ carga dinámica compatible
-    const saveAs = FileSaver.default // ✅ usa la exportación por defecto
+  }
+  */
 
-    const worksheetData = productos.map(p => ({
-      ID: p.id,
-      Nombre: p.name,
-      Precio: p.price.toFixed(2),
-      Stock: p.stock,
-  }))
-
-  const worksheet = XLSX.utils.json_to_sheet(worksheetData)
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Productos')
-
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
-  const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
-
-  saveAs(blob, 'productos.xlsx') // ✅ ahora sí funciona
-}
-
-
-  // Exportar PDF
+  // ✅ Esta función para exportar a PDF sigue funcionando
   const exportarPDF = () => {
     const doc = new jsPDF()
     doc.setFontSize(16)
@@ -114,12 +97,15 @@ export default function ReporteProductosPage() {
           </div>
 
           <div className="flex justify-end mb-4 gap-2">
+            {/* ❌ Eliminar este botón si ya no se exporta a Excel */}
+            {/*
             <button
               onClick={exportarExcel}
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               📥 Exportar a Excel
             </button>
+            */}
             <button
               onClick={exportarPDF}
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"

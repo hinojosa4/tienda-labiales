@@ -1,11 +1,12 @@
-'use client'
+'use client' // 👈 NECESARIO para que useEffect y useState funcionen
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { format, startOfWeek, endOfWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
-import * as XLSX from 'xlsx'
-//import { saveAs } from 'file-saver'
+// ❌ Puedes eliminar esta línea si ya no exportarás a Excel
+// import * as XLSX from 'xlsx'
+// import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -20,12 +21,10 @@ export default function VentasSemanalesPage() {
   const [totalVentas, setTotalVentas] = useState(0)
   const [loading, setLoading] = useState(true)
 
-  // Semana actual
   const now = new Date()
   const inicioSemanaLocal = startOfWeek(now, { weekStartsOn: 1 }) // lunes
   const finSemanaLocal = endOfWeek(now, { weekStartsOn: 1 }) // domingo
 
-  // Obtener ventas de la semana
   const fetchVentasDeLaSemana = async () => {
     setLoading(true)
 
@@ -63,7 +62,8 @@ export default function VentasSemanalesPage() {
     fetchVentasDeLaSemana()
   }, [])
 
-  // Exportar a Excel
+  // ❌ Función para exportar a Excel - puedes eliminar si no la usarás
+  /*
   const exportarExcel = () => {
     const worksheetData = pedidos.map(p => ({
       ID: p.id,
@@ -79,8 +79,9 @@ export default function VentasSemanalesPage() {
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
     saveAs(blob, 'reporte-semanal.xlsx')
   }
+  */
 
-  // Exportar a PDF
+  // ✅ Exportar a PDF
   const exportarPDF = () => {
     const doc = new jsPDF()
     doc.setFontSize(16)
@@ -125,12 +126,15 @@ export default function VentasSemanalesPage() {
           </div>
 
           <div className="flex justify-end mb-4">
+            {/* ❌ Botón para exportar a Excel - puedes eliminar si no lo necesitas */}
+            {/*
             <button
               onClick={exportarExcel}
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               📥 Exportar a Excel
             </button>
+            */}
             <button
               onClick={exportarPDF}
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2"

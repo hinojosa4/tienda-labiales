@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import * as XLSX from 'xlsx'
-//import { saveAs } from 'file-saver'
+// import * as XLSX from 'xlsx' ❌ Puedes eliminar esta línea si ya no usas Excel
+// import { saveAs } from 'file-saver' ❌ Ya no es necesario
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -48,6 +48,8 @@ export default function VentasDiariasPage() {
     fetchVentasDelDia()
   }, [])
 
+  // ❌ Puedes borrar completamente esta función si ya no se exporta a Excel
+  /*
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
       pedidos.map(p => ({
@@ -62,6 +64,7 @@ export default function VentasDiariasPage() {
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
     saveAs(blob, 'ventas-dia.xlsx')
   }
+  */
 
   const exportToPDF = () => {
     const doc = new jsPDF()
@@ -107,12 +110,15 @@ export default function VentasDiariasPage() {
           </div>
 
           <div className="mb-4 flex gap-4">
+            {/* ❌ Eliminar este botón si ya no se usa Excel */}
+            {/*
             <button
               onClick={exportToExcel}
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
             >
               📥 Exportar a Excel
             </button>
+            */}
             <button
               onClick={exportToPDF}
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
