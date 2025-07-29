@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useCart } from '@/lib/store/useCart'
 import Header from '@/components/Header'
+import { useRouter } from 'next/navigation'
 
 export default function ProductosPage() {
   const [productos, setProductos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { clearCart } = useCart()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -15,8 +17,17 @@ export default function ProductosPage() {
       if (!error) setProductos(data || [])
       setLoading(false)
     }
+
     fetchData()
   }, [])
+
+  // Corrección: Limpiar el carrito solo al cargar por primera vez si está mal cargado
+  useEffect(() => {
+    const items = localStorage.getItem('cart')
+    if (!items || JSON.parse(items).length === 0) {
+      clearCart()
+    }
+  }, [clearCart])
 
   if (loading) return <p className="text-center mt-10">Cargando productos...</p>
 
@@ -40,6 +51,7 @@ export default function ProductosPage() {
 function ProductoCard({ producto }: { producto: any }) {
   const { addToCart } = useCart()
   const [cantidad, setCantidad] = useState(1)
+  const router = useRouter()
 
   const aumentar = () => setCantidad(c => c + 1)
   const disminuir = () => setCantidad(c => Math.max(1, c - 1))
@@ -54,6 +66,7 @@ function ProductoCard({ producto }: { producto: any }) {
       },
       cantidad
     )
+    router.push('/carrito')
   }
 
   return (

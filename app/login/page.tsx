@@ -40,24 +40,35 @@ export default function LoginPage() {
     const containsBadWords = (text: string) =>
       badWords.some((word) => text.toLowerCase().includes(word))
 
-    if (!nameRegex.test(form.full_name) || containsBadWords(form.full_name)) {
-      newErrors.full_name = 'Nombre inválido (sin caracteres especiales, máximo 30 letras y sin groserías)'
+    // Validar nombre
+    if (!nameRegex.test(form.full_name)) {
+      newErrors.full_name = 'Solo letras y espacios, máximo 30 caracteres'
+    } else if (containsBadWords(form.full_name)) {
+      newErrors.full_name = 'El nombre contiene palabras inapropiadas'
     }
 
+    // Validar teléfono
     if (!phoneRegex.test(form.phone)) {
-      newErrors.phone = 'Número inválido (debe empezar en 6 o 7 y tener 8 dígitos)'
+      newErrors.phone = 'Debe empezar con 6 o 7 y tener 8 dígitos'
     }
 
-    if (!emailRegex.test(form.email) || form.email.length > 20) {
-      newErrors.email = 'Correo inválido (máximo 20 caracteres)'
+    // Validar email
+    if (!emailRegex.test(form.email)) {
+      newErrors.email = 'Formato de correo no válido'
+    } else if (form.email.length > 70) {
+      newErrors.email = 'Correo demasiado largo (máx. 70 caracteres)'
     }
 
-    if (form.address.length > 25 || containsBadWords(form.address)) {
-      newErrors.address = 'Dirección inválida (máximo 25 caracteres y sin groserías)'
+    // Validar dirección
+    if (form.address.length > 25) {
+      newErrors.address = 'Máximo 25 caracteres en dirección'
+    } else if (containsBadWords(form.address)) {
+      newErrors.address = 'La dirección contiene palabras inapropiadas'
     }
 
+    // Validar contraseña
     if (!passwordRegex.test(form.password)) {
-      newErrors.password = 'Contraseña débil (mínimo 8 caracteres con mayúscula, minúscula y número)'
+      newErrors.password = 'Debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número'
     }
 
     setErrors(newErrors)
@@ -194,6 +205,7 @@ export default function LoginPage() {
             <input
               name="email"
               type="email"
+              maxLength={70}
               value={form.email}
               onChange={handleChange}
               className="w-full p-3 border border-pink-300 rounded-lg text-black"
