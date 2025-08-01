@@ -75,7 +75,7 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /*const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -154,7 +154,116 @@ export default function LoginPage() {
     }
 
     setLoading(false)
+  }*/
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setError('')
+  setLoading(true)
+
+  if (!isLogin && !validate()) {
+    setLoading(false)
+    return
   }
+
+  try {
+    if (isLogin) {
+      await supabase.auth.signOut() // Limpiar sesión previa
+
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      })
+
+      if (signInError) {
+        setError('Correo o contraseña incorrectos')
+        setLoading(false)
+        return
+      }
+
+      // Esperar para que se sincronice la sesión
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+
+      if (sessionError || !sessionData.session) {
+        setError('No se pudo establecer sesión.')
+        setLoading(false)
+        return
+      }
+
+      const userId = sessionData.session.user.id
+
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', userId)
+        .single()
+
+      if (userError || !userData) {
+        setError('No se pudo verificar el rol del usuario.')
+        setLoading(false)
+        return
+      }
+
+      const redirectTo = userData.role === 'vendedor' ? '/admin' : nextUrl
+
+      console.log('Redireccionando a:', redirectTo)
+
+      router.replace(redirectTo) // ✅ redirección forzada
+    } else {
+      // Registro
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+      })
+
+      if (signUpError) {
+        setError(signUpError.message)
+        setLoading(false)
+        return
+      }
+
+      const userId = signUpData?.user?.id
+
+      if (!userId) {
+        setError('No se pudo obtener el ID del nuevo usuario')
+        setLoading(false)
+        return
+      }
+
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', userId)
+        .single()
+
+      if (!existingUser) {
+        const { error: insertError } = await supabase.from('users').insert({
+          id: userId,
+          full_name: form.full_name,
+          phone: form.phone,
+          email: form.email,
+          address: form.address,
+          role: 'cliente',
+        })
+
+        if (insertError) {
+          setError('Error al guardar datos del usuario: ' + insertError.message)
+          setLoading(false)
+          return
+        }
+      }
+
+      router.replace(nextUrl)
+    }
+  } catch (err) {
+    console.error(err)
+    setError('Ocurrió un error inesperado. Intenta de nuevo.')
+  }
+
+  setLoading(false)
+}
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-200 to-pink-300 flex items-center justify-center p-4">

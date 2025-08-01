@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import * as XLSX from 'xlsx' // ✅ Puedes eliminar también esta línea si ya no usarás XLSX
-import { format } from 'date-fns'
-// import { saveAs } from 'file-saver' ❌ Eliminar esta línea si está presente
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -37,31 +34,6 @@ export default function ReporteProductosPage() {
     fetchProductos()
   }, [])
 
-  // ❌ Puedes borrar toda esta función si ya no exportarás a Excel
-  /*
-  const exportarExcel = async () => {
-    const FileSaver = await import('file-saver')
-    const saveAs = FileSaver.default
-
-    const worksheetData = productos.map(p => ({
-      ID: p.id,
-      Nombre: p.name,
-      Precio: p.price.toFixed(2),
-      Stock: p.stock,
-    }))
-
-    const worksheet = XLSX.utils.json_to_sheet(worksheetData)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Productos')
-
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
-
-    saveAs(blob, 'productos.xlsx')
-  }
-  */
-
-  // ✅ Esta función para exportar a PDF sigue funcionando
   const exportarPDF = () => {
     const doc = new jsPDF()
     doc.setFontSize(16)
@@ -69,12 +41,11 @@ export default function ReporteProductosPage() {
 
     autoTable(doc, {
       startY: 30,
-      head: [['ID', 'Nombre', 'Precio (Bs)', 'Stock']],
-      body: productos.map(p => [
-        p.id.slice(0, 8),
+      head: [['#', 'Nombre', 'Precio (Bs)']],
+      body: productos.map((p, index) => [
+        (index + 1).toString(),
         p.name,
-        `Bs ${p.price.toFixed(2)}`,
-        p.stock.toString()
+        `Bs ${p.price.toFixed(2)}`
       ])
     })
 
@@ -97,15 +68,6 @@ export default function ReporteProductosPage() {
           </div>
 
           <div className="flex justify-end mb-4 gap-2">
-            {/* ❌ Eliminar este botón si ya no se exporta a Excel */}
-            {/*
-            <button
-              onClick={exportarExcel}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            >
-              📥 Exportar a Excel
-            </button>
-            */}
             <button
               onClick={exportarPDF}
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
@@ -118,19 +80,17 @@ export default function ReporteProductosPage() {
             <table className="min-w-full">
               <thead className="bg-pink-100 text-pink-800">
                 <tr>
-                  <th className="p-3 text-left">#ID</th>
+                  <th className="p-3 text-left">#</th>
                   <th className="p-3 text-left">Nombre</th>
                   <th className="p-3 text-left">Precio (Bs)</th>
-                  <th className="p-3 text-left">Stock</th>
                 </tr>
               </thead>
               <tbody>
-                {productos.map(producto => (
+                {productos.map((producto, index) => (
                   <tr key={producto.id} className="border-t">
-                    <td className="p-3">{producto.id.slice(0, 8)}...</td>
+                    <td className="p-3">{index + 1}</td>
                     <td className="p-3">{producto.name}</td>
                     <td className="p-3">Bs {producto.price.toFixed(2)}</td>
-                    <td className="p-3">{producto.stock}</td>
                   </tr>
                 ))}
               </tbody>

@@ -97,7 +97,7 @@ export default function CarritoPage() {
       💰 *Total a pagar:* Bs ${total.toFixed(2)}
     `.trim()
 
-    const numeroVendedor = '59179730325'
+    const numeroVendedor = '59167466004'
     const url = `https://wa.me/${numeroVendedor}?text=${encodeURIComponent(mensaje)}`
 
     clearCart()

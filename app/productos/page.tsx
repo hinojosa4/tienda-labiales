@@ -21,7 +21,6 @@ export default function ProductosPage() {
     fetchData()
   }, [])
 
-  // Corrección: Limpiar el carrito solo al cargar por primera vez si está mal cargado
   useEffect(() => {
     const items = localStorage.getItem('cart')
     if (!items || JSON.parse(items).length === 0) {
@@ -37,11 +36,28 @@ export default function ProductosPage() {
       <main className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-200 to-pink-300 py-10 px-4">
         <div className="max-w-6xl mx-auto bg-white/90 p-6 rounded-xl shadow-lg">
           <h1 className="text-3xl font-bold text-pink-600 mb-8 text-center">Nuestros Productos</h1>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {productos.map((producto) => (
               <ProductoCard key={producto.id} producto={producto} />
             ))}
           </div>
+
+          {/* Bloque visualmente atractivo: Sobre Stark */}
+          <section className="mt-16 rounded-xl bg-gradient-to-br from-pink-200 via-pink-100 to-white shadow-inner px-8 py-10 sm:px-10 lg:px-20">
+            <h2 className="text-3xl font-bold text-pink-700 text-center mb-6 relative inline-block after:block after:w-24 after:h-1 after:rounded-full after:bg-pink-400 after:mx-auto after:mt-2">
+              Sobre Stark
+            </h2>
+            <p className="text-gray-800 text-lg sm:text-xl leading-relaxed text-justify font-serif tracking-wide drop-shadow-sm">
+              En <span className="font-semibold text-pink-700">Stark</span>, fundada en <strong>2025</strong>, nos especializamos en la creación de 
+              <strong> labiales artesanales</strong> de la más alta calidad. Cada uno de nuestros productos está cuidadosamente elaborado con 
+              ingredientes <span className="italic text-pink-600">premium</span>, garantizando no solo belleza, sino también el cuidado que tus labios merecen.
+              <br /><br />
+              Nuestra pasión por la cosmética artesanal nos impulsa a crear <span className="font-medium">fórmulas únicas</span> que realzan tu 
+              belleza natural con productos excepcionales y duraderos. Creemos en la importancia de ofrecer labiales que 
+              <strong> nutren, protegen y embellecen</strong>, manteniendo siempre los más altos estándares de calidad.
+            </p>
+          </section>
         </div>
       </main>
     </>
